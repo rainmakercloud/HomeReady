@@ -1,2 +1,0 @@
-# HomeReady
-HomeReady Heroku App
