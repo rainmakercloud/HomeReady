@@ -1,4 +1,4 @@
-var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootstrap.modal', 'ngAnimate', 'ngSanitize', 'ui.bootstrap', 'ngIdle'])
+var homeReady = angular.module('homeready', ['ionic','ion-smooth-scroll', 'ionic.native', 'ui.bootstrap.modal', 'ngAnimate', 'ngSanitize', 'ui.bootstrap', 'ngIdle'])
   .run(function($ionicPlatform, $state, $q, homereadyConfig, $timeout, $rootScope, force, $cordovaDevice, $ionicLoading, Idle, $cordovaNetwork) {
     $ionicPlatform.ready(function() {
       if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -928,7 +928,9 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
   IdleProvider.timeout(homereadyConfig.synchronizationIdleCountdown);
   KeepaliveProvider.interval(10);
 })
-
+.config(['ionSmoothScrollProvider', function(ionSmoothScrollProvider){
+          ionSmoothScrollProvider.setScrollDuration(6000);
+}])
 
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -967,36 +969,45 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
   $urlRouterProvider.otherwise('/login');
   //$locationProvider.html5Mode(true);
 })
-.directive('scrollSmooth',function() {
+.directive('setHeight',['$window',function($window) {
   return{
     restrict:'A',
-    link:function(scope,element,attrs){
-      var base = 0;
-      element.bind("DOMMouseScroll mousewheel onmousewheel", function(event) {
-                     var event = window.event || event;
-                      var windowHeight = window.innerHeight;
-                      var listHeight = element.height()+100;
-                      //lodash.sumBy(element.children(), function(c) { return c.offsetWidth })
-                      var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-                      //scope.$apply(function(){
-                        if (-base + windowHeight <= listHeight) {
-                          base+=20*delta;
-                        } else {
-                          if (delta>0)
-                          base+=20*delta;
-                        }
-                        base = base>0?0:base;
-                        element.children().css({'transform':'translateY('+base+'px)'});
-                      //});
+    link:function(scope,element,attrs) {
+      //element = jQuery('.sliderPhotos');
+      scope.$watch(element,function (elm) {
+        var columnWidth = jQuery('.col-sm-6').width();
+        //console.log("column width",columnWidth);
+        var imgWidth = jQuery('.ionSlideBox').width();
+        //console.log("image width",imgWidth);
+        var imgHight = jQuery('.ionSlideBox').height();
+        //console.log("image height",imgHight);
+        if(imgWidth == imgHight){
+          jQuery('.ionSlideBox').css({
+            'height':columnWidth-20 +'px',
+            'width':columnWidth-20 +'px'
+          });
+        }
+      });
+      scope.onResize = function() {
+        var columnWidth = jQuery('.col-sm-6').width();
+        var imgWidth = jQuery('.ionSlideBox').width();
+        var imgHight = jQuery('.ionSlideBox').height();
+        var setTop = columnWidth/2;
+        if(imgWidth == imgHight){
+          jQuery('.ionSlideBox').css({
+            'height':columnWidth-20 +'px',
+            'width':columnWidth-20 +'px'
+          });
+        }
+            }
+            scope.onResize();
 
-                            event.returnValue = false;
-                             if(event.preventDefault){
-                            event.preventDefault();
-                             }
+            angular.element($window).bind('resize', function() {
+                scope.onResize();
             });
     }
   }
-})
+}])
 .directive('zoom', function() {
     return {
       restrict: 'A',
