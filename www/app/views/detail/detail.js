@@ -922,7 +922,7 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
         });
     }, function(err) {
       console.log(err);
-      alert(err);
+      //alert(err);
     });
 
     $scope.getCurrentWorkItemData(workItemId, 'isOpen',$rootScope.workItemIndex);
