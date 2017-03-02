@@ -980,10 +980,10 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                       var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
                       //scope.$apply(function(){
                         if (-base + windowHeight <= listHeight) {
-                          base+=20*delta;
+                          base+=60*delta;
                         } else {
                           if (delta>0)
-                          base+=20*delta;
+                          base+=60*delta;
                         }
                         base = base>0?0:base;
                         element.children().css({'transform':'translateY('+base+'px)'});
