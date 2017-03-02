@@ -16,9 +16,9 @@ homeReady.constant('homereadyConfig', {
   testURL: "https://test.salesforce.com",
   productionCommunityURL: "",
   testCommunityURL: "https://dev-gbcrm-homeworx.cs52.force.com/portal",
-  synchronizationIdleTimeout: 1,
-  synchronizationIdleCountdown: 1,
-  syncDelay: 0,
+  synchronizationIdleTimeout: 500,
+  synchronizationIdleCountdown: 500,
+  syncDelay: 20000,
   clientId: "3MVG9jfQT7vUue.FqdG4DxZu.vhLGuEJlX.aSxICXto6nhkP0mIIR0O9DsfvzJR8KwiiOK2DVX3cTUZNCSFhO",
   clientSecret: "842700102299482368"
 })

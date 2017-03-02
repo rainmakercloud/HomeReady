@@ -64,12 +64,15 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
   $scope.defaultBgClass = "btn-gray";
   //$scope.open = false;
   $scope.isOpen = function() {
-
-    $scope.getActiveWorkItems($rootScope.groupBookmark, 'isOPen',$scope.groupIndex);
-
+    if($scope.groupIndex != undefined){
+      $scope.getActiveWorkItems($rootScope.groupBookmark, 'isOPen',$scope.groupIndex);
+    }
+    else{
+      $scope.getActiveWorkItems($rootScope.groupBookmark, 'isNotOpen',$scope.groupIndex);
+    }
   };
   $scope.isOpenGroup = function(gName) {
-    if ($rootScope.groupBookmark != undefined) {
+    if ($rootScope.groupBookmark != undefined && $scope.groupIndex != undefined) {
       return $rootScope.groupBookmark == gName;
     } else {
       return false;
@@ -84,34 +87,36 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
     }
   };
   $rootScope.defaultImage = "/img/after-image-placeholder.jpg";
+  $scope.setTransform = function(translate){
+    jQuery(".scroll").css({
+        '-ms-transform':translate,
+        '-moz-transform':translate,
+        '-webkit-transform':translate,
+        '-o-transform':translate
+      });
+  }
 
   $scope.getActiveWorkItems = function(groupType, type,index) {
-    $scope.setAspectRatio();
-    $scope.groupIndex = index;
-    var headerTop = jQuery('.clearfix').offset().top;
-    console.log("Header Top PX",headerTop);
-    var groupHeaderOffset = jQuery('#groupHeader'+index).offset().top;
-    console.log("Group Header Top px",groupHeaderOffset);
-    var offsetTop = groupHeaderOffset - headerTop;
-    //var top = 127 + (index * 61);
-      var sc = 'translate3d('+ 0 +'px,-' + offsetTop +'px,'+ 0 +'px)';
-      jQuery('#accordianHeader'+$scope.groupIndex).css({
-          '-ms-transform':sc,
-          '-moz-transform':sc,
-          '-webkit-transform':sc,
-          '-o-transform':sc
-        });
     if ($rootScope.groupBookmark == groupType && type == 'isNotOpen') {
+      $scope.groupIndex = undefined;
       $rootScope.groupBookmark = undefined;
       $scope.group_header_scroll = 0;
-      var sc = 'translate3d('+ 0 +'px,-' + 0 +'px,'+ 0 +'px)';
-      jQuery('#accordianHeader'+$scope.groupIndex).css({
-          '-ms-transform':sc,
-          '-moz-transform':sc,
-          '-webkit-transform':sc,
-          '-o-transform':sc
-        });
+      $timeout(function () {
+     $scope.sc = 'translate3d(0px, 0px, 0px)';
+     $scope.setTransform($scope.sc);
+     $location.hash('scroll');
+     var handle = $ionicScrollDelegate.$getByHandle('detailPageDelegate');
+     handle.anchorScroll(true);
+      },200);
     } else {
+      $timeout(function () {
+        $location.hash('groupHeader'+index);
+        var handle = $ionicScrollDelegate.$getByHandle('detailPageDelegate');
+        handle.anchorScroll(true);
+         $scope.sc = 'translate3d(0px, 100px, 0px)';
+         $scope.setTransform($scope.sc);
+      }, 300);
+      $scope.groupIndex = index;
       $rootScope.groupBookmark = groupType;
       for (var i = 0; i < $scope.activeGroups.length; i++) {
         if ($scope.activeGroups[i].Group_Name__c == groupType) {
@@ -353,11 +358,10 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
       title: 'Work Item Status Changed',
       template: "Work Item Marked As Underway"
     }).then(function(res) {
+      //$scope.underwayFunc();
       $scope.isOpen();
-      $scope.setAspectRatio();
+      //$scope.setAspectRatio();
     })
-
-
   };
   var deviceID = $cordovaDevice.device.uuid;
   $scope.openMap = function(eve, LatLong, StreetAddress) {
@@ -443,8 +447,9 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
         title: 'Work Item Status Changed',
         template: "Work Item Marked As Completed"
       }).then(function(res) {
+        //$scope.completeFunc();
         $scope.isOpen();
-        //$scope.setAspectRatio();
+        ////$scope.setAspectRatio();
       });
       $scope.images = [];
 
@@ -524,8 +529,9 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
         title: 'Work Item Status Changed',
         template: "Work Item Marked As Deficient"
       }).then(function(res) {
+        //$scope.deficientFunc();
         $scope.isOpen();
-        //$scope.setAspectRatio();
+        ////$scope.setAspectRatio();
       });
 
 
@@ -602,8 +608,9 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
       title: "Work Item Status Changed",
       template: "Work Item Marked As Verified"
     }).then(function(res) {
+      //$scope.verifiedFunc();
       $scope.isOpen();
-      //$scope.setAspectRatio();
+      ////$scope.setAspectRatio();
     });
 
 
@@ -620,24 +627,18 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
   var intervalId = $interval(function() {
     $ionicSlideBoxDelegate.update();
   });
-  $scope.prevSlide = function() {
-    $ionicSlideBoxDelegate.$getByHandle('workItem_slider').previous();
+  $scope.prevSlide = function(index) {
+    $ionicSlideBoxDelegate.$getByHandle("beforePhotoHandle").previous();
   };
-  $scope.nextSlide = function() {
-    $ionicSlideBoxDelegate.$getByHandle('workItem_slider').next();
-  };
-  $scope.groupPrevSlide = function() {
-    $ionicSlideBoxDelegate.$getByHandle('group_slider').previous();
-  };
-  $scope.groupNextSlide = function() {
-    $ionicSlideBoxDelegate.$getByHandle('group_slider').next();
+  $scope.nextSlide = function(index) {
+    $ionicSlideBoxDelegate.$getByHandle("beforePhotoHandle").next();
   };
 
-  $scope.prevAfterPhotoSlide = function() {
-    $ionicSlideBoxDelegate.$getByHandle('AfterPhoto').previous();
+  $scope.prevAfterPhotoSlide = function(index) {
+    $ionicSlideBoxDelegate.$getByHandle("afterPhotoHandle").previous();
   };
-  $scope.nextAfterPhotoSlide = function() {
-    $ionicSlideBoxDelegate.$getByHandle('AfterPhoto').next();
+  $scope.nextAfterPhotoSlide = function(index) {
+    $ionicSlideBoxDelegate.$getByHandle("afterPhotoHandle").next();
   };
   $scope.prevImageSlide = function(index) {
     if(index > 0){
@@ -924,7 +925,7 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
       alert(err);
     });
 
-    $scope.getCurrentWorkItemData(workItemId, 'isOpen');
+    $scope.getCurrentWorkItemData(workItemId, 'isOpen',$rootScope.workItemIndex);
     //$scope.isOpen();
     console.log("Take Photo");
   };
@@ -995,7 +996,7 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
               //console.log(error);
               console.log(error);
             });
-          $scope.getCurrentWorkItemData(workItemId, 'isOpen');
+          $scope.getCurrentWorkItemData(workItemId, 'isOpen',$rootScope.workItemIndex);
           //$scope.isOpen();
         }
       }
@@ -1054,7 +1055,6 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
     }];
     var option = $scope.amounts;
     $scope.showModal('app/addCredit.html');
-    //$scope.isOpenWorkItem(123);
   };
 
   $scope.showModal = function(templateUrl) {
@@ -1071,7 +1071,7 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
   // Close the modal
   $scope.closeCreditModal = function() {
     $scope.modalOne.hide();
-    $scope.modalOne.remove();
+    //$scope.modalOne.remove();
   };
   $scope.credit_data = {
     payable: '',
@@ -1159,33 +1159,38 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
     }
   };
 
-  $scope.setAspectRatio = function(){
-    var element = jQuery('.sliderBox');
-    var width = jQuery('.col-sm-6').width();
-    console.log("Width",width);
-    element.css({
-      'width':width + 'px',
-      'height':width +'px'
-    });
-      $timeout(function () {
-      jQuery('.sliderPhoto').css({
-        'width':width-40 + 'px',
-        'height':'auto'
-      });
-      var topHeight = width/2;
-      jQuery('.buttonTop').css({
-        top:topHeight-20 + 'px'
-      });
-    }, 100);
-  }
+  // $scope.setAspectRatio = function(){
+  //   var element = jQuery('.sliderBox');
+  //   var width = jQuery('.col-sm-6').width();
+  //   console.log("Width",width);
+  //   element.css({
+  //     'width':width + 'px',
+  //     'height':width +'px'
+  //   });
+  //     $timeout(function () {
+  //     jQuery('.sliderPhoto').css({
+  //       'width':width-40 + 'px',
+  //       'height':'auto'
+  //     });
+  //     var topHeight = width/2;
+  //     jQuery('.buttonTop').css({
+  //       top:topHeight-20 + 'px'
+  //     });
+  //   }, 100);
+  // }
 
-  $scope.getCurrentWorkItemData = function(workItemId, openType) {
-    $scope.setAspectRatio();
+  $scope.getCurrentWorkItemData = function(workItemId, openType,index) {
+    $rootScope.workItemIndex = index;
     if ($rootScope.workItemBookmark == workItemId && openType == 'isNotOpen') {
       $rootScope.workItemBookmark = undefined;
       $rootScope.WiId = undefined;
       $scope.showWorkItemPhotos(workItemId);
     } else {
+      $timeout(function () {
+     $location.hash('workItemHeader'+index);   //set the location hash
+     var handle = $ionicScrollDelegate.$getByHandle('detailPageDelegate');
+     handle.anchorScroll(true);
+      },200);
       $rootScope.workItemBookmark = workItemId;
       $rootScope.WiId = workItemId;
       $scope.imgURI = undefined;
@@ -1208,11 +1213,11 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
   $scope.activeClass = "bgm-lightblue";
 
   angular.element($window).bind('resize', function () {
-    $scope.setAspectRatio();
+    //$scope.setAspectRatio();
   });
 
   $scope.showGroupPhotos = function(group_id) {
-  $scope.setAspectRatio();
+  //$scope.setAspectRatio();
     $scope.slidePhotos = [];
     for (var i = 0; i < $rootScope.groupsArray.length; i++) {
       if ($rootScope.groupsArray[i].Id == group_id) {
@@ -1237,7 +1242,7 @@ angular.module('homeready').controller('DetailCtrl', function($scope,$window, $q
     $scope.activeClass = "btn-gray";
   };
   $scope.showWorkItemPhotos = function(workItem_Id) {
-    $scope.setAspectRatio();
+    //$scope.setAspectRatio();
     $scope.slidePhotos = [];
     for (var i = 0; i < $rootScope.workItemsArray.length; i++) {
       if ($rootScope.workItemsArray[i].Id == workItem_Id) {
