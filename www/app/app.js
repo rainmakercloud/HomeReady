@@ -236,7 +236,7 @@ var homeReady = angular.module('homeready', ['ionic','ion-smooth-scroll', 'ionic
         var defer = $q.defer();
         //console.log(JobIds);
         if (JobIds)
-          force.query("select id,CreatedDate,name,Property_Address_link__c,Original_Approved_Cost__c,Job_or_Order__c,Contracted_Completion_Date__c,Expected_Completion_Date__c,Start_Date__c,Vendor_Contact__c,Change_Order__c,Contact_LU__c,Contact_LU__r.Name,Record_Count__c,Project_Type__c,Street_Address__c,Lat_Long__c,Services_and_Supplies__r.Name,Status__c,Property__c,Repair_Project__r.Property__r.Id,(select id,createdDate, createdBy.Name,Job_or_Order__c,File_URL__c,Photo_Rotation__c from Property_Documents__r where Document_Type__c = 'Property Photo' limit 1) from Job_or_Order__c where Payment_Status__c != 'Fully Paid' AND id in (" + JobIds + ")")
+          force.query("select id,CreatedDate,name,Property_Address_link__c,Original_Approved_Cost__c,Job_or_Order__c,Contracted_Completion_Date__c,Expected_Completion_Date__c,Start_Date__c,Vendor_Contact__c,Change_Order__c,HomeReady_Vendor__c,Record_Count__c,Project_Type__c,Street_Address__c,Lat_Long__c,Services_and_Supplies__r.Name,Status__c,Property__c,Repair_Project__r.Property__r.Id,(select id,Job_or_Order__c,File_URL__c,Photo_Rotation__c from Property_Documents__r where Document_Type__c = 'Property Photo' limit 1) from Job_or_Order__c where Payment_Status__c != 'Fully Paid' AND id in (" + JobIds + ")")
           .then(function(Jobs) {
             for (var i = 0; i < Jobs.records.length; i++) {
               Jobs.records[i].JobNumber = i;
@@ -648,8 +648,8 @@ var homeReady = angular.module('homeready', ['ionic','ion-smooth-scroll', 'ionic
                   };
                   job = angular.copy(jobObj);
                   jobDetails.Street_Address__c = job.Street_Address__c;
-                  if (job.Contact_LU__r)
-                    job.vendor = job.Contact_LU__r.Name;
+                  if (job.HomeReady_Vendor__c !=  null)
+                     job.vendor = job.HomeReady_Vendor__c;
                   else
                     job.vendor = "No Vendor";
                   job.Groups = [];
