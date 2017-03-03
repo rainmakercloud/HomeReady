@@ -308,7 +308,9 @@
                                   <label style="position:absolute;right:0;top:0;width:250px;font-weight:bold;color:#ff9800">{{photo.CreatedDate| date : 'MM/dd/yyyy'}}
                                     by
                                     {{photo.CreatedBy.Name}}</label>
-                                  <img class="full-image" ng-if="photo.File_URL__c != null" ng-src="{{photo.File_URL__c}}" ng-click="openModal(slidePhotos,photoBeforeIndex,photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
+                                  <div style="overflow:hidden">
+                                    <img class="full-image" ng-if="photo.File_URL__c != null" ng-src="{{photo.File_URL__c}}" ng-click="openModal(slidePhotos,photoBeforeIndex,photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
+                                  </div>
                                   <button ng-if="workItemSlider" ng-click="movePhotoToGroup(currentWorkItem.Group__c,photo)" style="position:absolute;left:15%;bottom:5%">Move photo to [Group]</button>
                                   <button ng-if="groupSlider" ng-click="movePhotoToWorkItem(currentWorkItem.Id,photo)" style="position:absolute;left:15%;bottom:5%">Move photo to [Work Item]</button>
                                   <div ng-click="prevSlide($index)" ng-if="!($first)" style="position:absolute;top:0%;height:100%;width:100px;display:table">
@@ -347,7 +349,9 @@
                                   <label style="position:absolute;width:250px;right:0;top:0;font-weight:bold;color:#ff9800">{{After_Photo.CreatedDate| date : 'MM/dd/yyyy'}}
                                     by
                                     {{After_Photo.CreatedBy.Name}}</label>
-                                  <img class="full-image" ng-src="{{After_Photo.File_URL__c}}" err-src="/img/after-image-placeholder" ng-click="openModal(currentWorkItem.Property_Documents__r.records,$index,After_Photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
+                                  <div style="overflow:hidden">
+                                    <img class="full-image" ng-src="{{After_Photo.File_URL__c}}" err-src="/img/after-image-placeholder" ng-click="openModal(currentWorkItem.Property_Documents__r.records,$index,After_Photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
+                                  </div>
                                   <div ng-show="!($first)" ng-click="prevAfterPhotoSlide($index)" style="position:absolute;top:0%;height:100%;width:100px;display:table">
                                     <div style="display:table-cell;vertical-align:middle">
                                       <button class="icon button-clear"  ng-hide="$first" style="position:absolute;left:0%;weight:bold;font-size:40px;padding-bottom:45px">
