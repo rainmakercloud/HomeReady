@@ -308,7 +308,7 @@
                                   <label style="position:absolute;right:0;top:0;width:250px;font-weight:bold;color:#ff9800">{{photo.CreatedDate| date : 'MM/dd/yyyy'}}
                                     by
                                     {{photo.CreatedBy.Name}}</label>
-                                  <img class="full-image" ng-if="photo.File_URL__c != null" ng-src="{{photo.File_URL__c}}" ng-click="openModal(slidePhotos,photoBeforeIndex,photo.Document_Type__c)">
+                                  <img class="full-image" ng-if="photo.File_URL__c != null" ng-src="{{photo.File_URL__c}}" ng-click="openModal(slidePhotos,photoBeforeIndex,photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
                                   <button ng-if="workItemSlider" ng-click="movePhotoToGroup(currentWorkItem.Group__c,photo)" style="position:absolute;left:15%;bottom:5%">Move photo to [Group]</button>
                                   <button ng-if="groupSlider" ng-click="movePhotoToWorkItem(currentWorkItem.Id,photo)" style="position:absolute;left:15%;bottom:5%">Move photo to [Work Item]</button>
                                   <div ng-click="prevSlide($index)" ng-if="!($first)" style="position:absolute;top:0%;height:100%;width:100px;display:table">
@@ -347,7 +347,7 @@
                                   <label style="position:absolute;width:250px;right:0;top:0;font-weight:bold;color:#ff9800">{{After_Photo.CreatedDate| date : 'MM/dd/yyyy'}}
                                     by
                                     {{After_Photo.CreatedBy.Name}}</label>
-                                  <img class="full-image" ng-src="{{After_Photo.File_URL__c}}" err-src="/img/after-image-placeholder" ng-click="openModal(currentWorkItem.Property_Documents__r.records,$index,After_Photo.Document_Type__c)">
+                                  <img class="full-image" ng-src="{{After_Photo.File_URL__c}}" err-src="/img/after-image-placeholder" ng-click="openModal(currentWorkItem.Property_Documents__r.records,$index,After_Photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
                                   <div ng-show="!($first)" ng-click="prevAfterPhotoSlide($index)" style="position:absolute;top:0%;height:100%;width:100px;display:table">
                                     <div style="display:table-cell;vertical-align:middle">
                                       <button class="icon button-clear"  ng-hide="$first" style="position:absolute;left:0%;weight:bold;font-size:40px;padding-bottom:45px">
@@ -377,10 +377,10 @@
                         <div class="col-sm-6"></div>
 
                         <div class="col-sm-6 fix-padding-left">
-                          <div ng-show="!iPad && (workItem.Status__c == 'Underway')">
+                          <div ng-show="!iPad">
                             <input type="file" name="file" id="fileInput" accept=".png, .jpg, .jpeg" class="custom-file-input" onchange="angular.element(this).scope().selectImage(this.files)"/>
                           </div>
-                          <button ng-show="iPad && (workItem.Status__c == 'Underway')" class="btn bgm-gray btn-icon-text btn-xs waves-effect" ng-click="takePhoto()">
+                          <button ng-show="iPad" class="btn bgm-gray btn-icon-text btn-xs waves-effect" ng-click="takePhoto()">
                             <i class="zmdi zmdi-camera"></i>
                             Take Photo
                           </button>
