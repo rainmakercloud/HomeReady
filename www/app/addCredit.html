@@ -8,7 +8,7 @@
                            {{workItemData.Item_Name__c}}</h4>
                       <small>{{workItemData.Comments__c}}</small><br/>
                       <strong>Work Item Total Amount:</strong>
-                      [{{workItemData.Amount__c | currency}}]
+                      [{{workItemData.HomeReady_Amount__c | currency}}]
                   </div>
                   <div class="modal-body">
                       <p>
@@ -58,9 +58,9 @@
                                               <td>
                                                   <strong>Amount to Pay</strong></br>
                                               </td>
-                                              <td><input ng-init="credit_data.payable = workItemData.Credit__c" ng-model="credit_data.payable" ng-change="credit_data.remaining = workItemData.Amount__c - credit_data.payable"  class="input-mask adjustment-input" placeholder="$0.00" autocomplete="off"></td>
+                                              <td><input ng-init="credit_data.payable = workItemData.Credit__c" ng-model="credit_data.payable" ng-change="credit_data.remaining = workItemData.HomeReady_Amount__c - credit_data.payable"  class="input-mask adjustment-input" placeholder="$0.00" autocomplete="off"></td>
                                               <td>
-                                                  <select ng-model='form.percent' required ng-options='option.value as option.name for option in amounts' ng-change="credit_data.payable = (workItemData.Amount__c)*(form.percent)/100;credit_data.remaining = workItemData.Amount__c - credit_data.payable"></select>
+                                                  <select ng-model='form.percent' required ng-options='option.value as option.name for option in amounts' ng-change="credit_data.payable = (workItemData.HomeReady_Amount__c)*(form.percent)/100;credit_data.remaining = workItemData.HomeReady_Amount__c - credit_data.payable"></select>
                                               </td>
                                               <td ng-model="credit_data.remaining" ng-init="credit_data.remaining = workItemData.Net_Amount__c">${{credit_data.remaining | number: 2}}</td>
                                           </tr>
