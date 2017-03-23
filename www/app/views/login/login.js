@@ -156,20 +156,22 @@ angular.module('homeready').controller('LoginCtrl', function($scope, $ionicPopup
                 } else {
                     $rootScope.updateQueue = [];
                 }
+                $rootScope.updateQueue.push({  //Maintains a ques for all the updates
+            		type: 'Login_History__c',
+            		isNew: true,
+            		fields: {
+                		Device_Id__c: deviceID,
+                		Login_Date_Time__c: dateTime,
+                		Role__c: role,
+                		User__c: userID
+            		}	
+        		});
+        		console.log('Login History Saved!');
             },
             function(error) {
                 console.log(error);
             });
-        $rootScope.updateQueue.push({  //Maintains a ques for all the updates
-            type: 'Login_History__c',
-            isNew: true,
-            fields: {
-                Device_Id__c: deviceID,
-                Login_Date_Time__c: dateTime,
-                Role__c: role,
-                User__c: userID
-            }
-        });
+        
     };
 
     //Sign in user
