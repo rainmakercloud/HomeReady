@@ -236,7 +236,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
         var defer = $q.defer();
         //console.log(JobIds);
         if (JobIds)
-          force.query("select id,CreatedDate,name,Property_Address_link__c,Original_Approved_Cost__c,Job_or_Order__c,Contracted_Completion_Date__c,Expected_Completion_Date__c,Start_Date__c,Vendor_Contact__c,Change_Order__c,Contact_LU__c,Contact_LU__r.Name,Record_Count__c,Project_Type__c,Street_Address__c,Lat_Long__c,Services_and_Supplies__r.Name,Status__c,Property__c,Repair_Project__r.Property__r.Id,(select id,createdDate, createdBy.Name,Job_or_Order__c,File_URL__c,Photo_Rotation__c from Property_Documents__r where Document_Type__c = 'Property Photo' limit 1) from Job_or_Order__c where Payment_Status__c != 'Fully Paid' AND id in (" + JobIds + ")")
+          force.query("select id,CreatedDate,name,Property_Address_link__c,Original_Approved_Cost__c,Job_or_Order__c,Contracted_Completion_Date__c,Expected_Completion_Date__c,Start_Date__c,Vendor_Contact__c,Change_Order__c,HomeReady_Vendor__c,Record_Count__c,Project_Type__c,Street_Address__c,Lat_Long__c,Services_and_Supplies__r.Name,Status__c,Property__c,Repair_Project__r.Property__r.Id,(select id,Job_or_Order__c,File_URL__c,Photo_Rotation__c from Property_Documents__r where Document_Type__c = 'Property Photo' limit 1) from Job_or_Order__c where Payment_Status__c != 'Fully Paid' AND id in (" + JobIds + ")")
           .then(function(Jobs) {
             for (var i = 0; i < Jobs.records.length; i++) {
               Jobs.records[i].JobNumber = i;
@@ -297,7 +297,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
       var getWorkItems = function() {
         var defer = $q.defer();
         if (GroupIds)
-          force.query("select id,name,Amount__c,Status__c,Note__c,Comments__c,Description__c,Item_Name__c,Group__c,Verify_in_HomeReady__c,Credit__c,Net_Amount__c,Credit_Notes__c,Remaining_Work_Cost_Est__c,Followup_Type__c,Remaining_Work_Needs_Bid__c, (Select Work_Item__c, Item_Status__c, Description__c, Date__c, User__c From Work_Logs__r), (select id,name,Description__c,Work_Item__c,Labor__c,Price__c,Qty__c,Total__c,SKU__c from Products_Materials__r),(select id,name,CreatedDate,CreatedBy.Name,Group__c,File_URL__c,Photo_Rotation__c,Document_Type__c,Work_Item__c from Property_Documents__r where Document_Type__c = 'Rehab Photo - Before' or Document_Type__c = 'Rehab Photo - After') from Work_Item__c where Status__c != null AND Group__c in (" + GroupIds + ")")
+          force.query("select id,name,HomeReady_Amount__c,HomeReady_Quantity__c, Status__c,Note__c,Comments__c,Description__c,Item_Name__c,Group__c,Verify_in_HomeReady__c,Credit__c,Net_Amount__c,Credit_Notes__c,Remaining_Work_Cost_Est__c,Followup_Type__c,Remaining_Work_Needs_Bid__c, (Select Work_Item__c, Item_Status__c, Description__c, Date__c, User__c From Work_Logs__r), (select id,name,Description__c,Work_Item__c,Labor__c,Price__c,Qty__c,Total__c,SKU__c from Products_Materials__r),(select id,name,CreatedDate,CreatedBy.Name,Group__c,File_URL__c,Photo_Rotation__c,Document_Type__c,Work_Item__c from Property_Documents__r where Document_Type__c = 'Rehab Photo - Before' or Document_Type__c = 'Rehab Photo - After') from Work_Item__c where Status__c != null AND Group__c in (" + GroupIds + ")")
           .then(function(WorkItems) {
             console.log("workItem created By name", WorkItems);
             if (WorkItems.records.length > 0) {
@@ -702,8 +702,8 @@ var pushUpdates = function() {
                   };
                   job = angular.copy(jobObj);
                   jobDetails.Street_Address__c = job.Street_Address__c;
-                  if (job.Contact_LU__r)
-                    job.vendor = job.Contact_LU__r.Name;
+                  if (job.HomeReady_Vendor__c !=  null)
+                    job.vendor = job.HomeReady_Vendor__c;
                   else
                     job.vendor = "No Vendor";
                   job.Groups = [];
@@ -1040,103 +1040,4 @@ var pushUpdates = function() {
       }
     }
   })
-homeReady.controller('launchHomereadyCtrl', function($scope, $state, $cordovaDevice, $rootScope, $ionicLoading, $state, $stateParams, homereadyConfig, force) {
 
-  $ionicLoading.show({
-    template: '<ion-spinner icon="ios"></ion-spinner>',
-    duration: 5000
-  });
-  var userMap = [];
-  $rootScope.updateQueue = [];
-  $scope.$on('$ionicView.loaded', function($event, data) {
-    var id = data.stateParams.job_Id;
-    console.log("StateParams", data.stateParams);
-    $rootScope.user = {};
-    $rootScope.user.Username = data.stateParams.userName;
-    $rootScope.user.Id = data.stateParams.userId;
-    $rootScope.isVerifier = false;
-    if (data.stateParams.isVerifier) {
-      $rootScope.isVerifier = true;
-    }
-    $rootScope.uat = "Test";
-    if (data.stateParams.isProduction == '1') {
-      $rootScope.uat = "Production";
-    }
-    var instanceUrl = "https://" + data.stateParams.instance_url;
-    //console.log(instanceUrl);
-    var initOption = {
-        accessToken: data.stateParams.access_token,
-        loginURL: instanceUrl,
-        instanceURL: instanceUrl,
-        refreshToken: undefined
-      }
-      //console.log(initOption);
-    force.init(initOption);
-
-    var saveJobAccessHistory = function(jobId) {
-      var deviceID = $cordovaDevice.device.uuid;
-      var userID = data.stateParams.userId;
-      var dateTime = new Date();
-      var role = 'Vendor';
-      if ($rootScope.isVerifier)
-        role = 'Verifier';
-      $rootScope.updateQueue.push({
-        type: 'Job_Access_Detail__c',
-        isNew: true,
-        fields: {
-          Device_Id__c: deviceID,
-          Job_Access_Date_Time__c: dateTime,
-          Role__c: role,
-          User__c: userID,
-          Job_or_Order__c: jobId
-        }
-      });
-      localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
-          console.log("Update Saved");
-        },
-        function(error) {
-          console.log(error);
-        });
-    };
-
-    if (data.stateParams.isPortalUser) {
-      if (data.stateParams.isProduction) {
-        initOption.instanceURL = homereadyConfig.productionURL;
-        initOption.loginURL = homereadyConfig.productionURL;
-      } else {
-        initOption.instanceURL = homereadyConfig.testCommunityURL;
-        initOption.loginURL = homereadyConfig.testCommunityURL;
-      }
-    }
-
-    //force.tokenAuthentication(initOption);
-    if (force.isAuthenticated()) {
-      $rootScope.loginWithStateParams(data.stateParams.job_Id).then(function() {
-        var count = 0;
-        $rootScope.activeProjects = $rootScope.JobArray[0].Job;
-        console.log($rootScope.activeProjects);
-        angular.forEach($rootScope.activeProjects, function(job) {
-          if (job.Id.includes(data.stateParams.job_Id)) {
-            $rootScope.activeJob = job;
-            console.log(job);
-            $rootScope.activeJobIndex = job.JobIndex;
-            $rootScope.activeJobArrayIndex = job.JobArrayIndex;
-            saveJobAccessHistory(job.Id);
-          }
-          count++;
-        });
-        $rootScope.activeJobs = [];
-        $rootScope.activeJobs.push($rootScope.activeJob);
-
-        $state.go('summary');
-        $ionicLoading.hide();
-      });
-    }
-
-
-
-
-  });
-
-
-})
