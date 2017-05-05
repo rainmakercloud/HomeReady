@@ -6,7 +6,7 @@
                   <div class="box">
                     <label style="position:absolute;left:0;top:0;font-weight:bold;color:#ff9800">[{{$index+1}}/{{(photoDoc.length)}}]</label>
                     <center  id="rotateImage{{$index}}">
-                      <img id="sliderImage{{$index}}" ng-src="{{property.File_URL__c}}" style="position:relative;height:500px;width:500px;">
+                      <img id="sliderImage{{$index}}" ng-src="{{property.File_URL__c}}" style="position:relative;">
                     </center>
                     <div ng-click="prevImageSlide($index)" style="position:absolute;top:0%;height:400px;width:100px">
                         <button class="icon button-clear" ng-hide="$first" style="position:absolute;left:0%;top:40%;weight:bold;font-size:40px;">

@@ -102,7 +102,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
         }
       };
       console.log("Device ID: " + $cordovaDevice.device.uuid);
-      $rootScope.updateQueue = [];
+      //$rootScope.updateQueue = [];
       var JobIds = "";
       var GroupIds = "";
       var WorkIds = "";
@@ -236,7 +236,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
         var defer = $q.defer();
         //console.log(JobIds);
         if (JobIds)
-          force.query("select id,CreatedDate,name,Property_Address_link__c,Original_Approved_Cost__c,Job_or_Order__c,Contracted_Completion_Date__c,Expected_Completion_Date__c,Start_Date__c,Vendor_Contact__c,Change_Order__c,Contact_LU__c,Contact_LU__r.Name,Record_Count__c,Project_Type__c,Street_Address__c,Lat_Long__c,Services_and_Supplies__r.Name,Status__c,Property__c,Repair_Project__r.Property__r.Id,(select id,createdDate, createdBy.Name,Job_or_Order__c,File_URL__c,Photo_Rotation__c from Property_Documents__r where Document_Type__c = 'Property Photo' limit 1) from Job_or_Order__c where Payment_Status__c != 'Fully Paid' AND id in (" + JobIds + ")")
+          force.query("select id,CreatedDate,name,Property_Address_link__c,Original_Approved_Cost__c,Job_or_Order__c,Contracted_Completion_Date__c,Expected_Completion_Date__c,Start_Date__c,Vendor_Contact__c,Change_Order__c,HomeReady_Vendor__c,Record_Count__c,Project_Type__c,Street_Address__c,Lat_Long__c,Services_and_Supplies__r.Name,Status__c,Property__c,Repair_Project__r.Property__r.Id,(select id,Job_or_Order__c,File_URL__c,Photo_Rotation__c from Property_Documents__r where Document_Type__c = 'Property Photo' limit 1) from Job_or_Order__c where Payment_Status__c != 'Fully Paid' AND id in (" + JobIds + ")")
           .then(function(Jobs) {
             for (var i = 0; i < Jobs.records.length; i++) {
               Jobs.records[i].JobNumber = i;
@@ -297,7 +297,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
       var getWorkItems = function() {
         var defer = $q.defer();
         if (GroupIds)
-          force.query("select id,name,Amount__c,Status__c,Note__c,Comments__c,Description__c,Item_Name__c,Group__c,Verify_in_HomeReady__c,Credit__c,Net_Amount__c,Credit_Notes__c,Remaining_Work_Cost_Est__c,Followup_Type__c,Remaining_Work_Needs_Bid__c, (Select Work_Item__c, Item_Status__c, Description__c, Date__c, User__c From Work_Logs__r), (select id,name,Description__c,Work_Item__c,Labor__c,Price__c,Qty__c,Total__c,SKU__c from Products_Materials__r),(select id,name,CreatedDate,CreatedBy.Name,Group__c,File_URL__c,Photo_Rotation__c,Document_Type__c,Work_Item__c from Property_Documents__r where Document_Type__c = 'Rehab Photo - Before' or Document_Type__c = 'Rehab Photo - After') from Work_Item__c where Status__c != null AND Group__c in (" + GroupIds + ")")
+          force.query("select id,name,HomeReady_Amount__c,HomeReady_Quantity__c, Status__c,Note__c,Comments__c,Description__c,Item_Name__c,Group__c,Verify_in_HomeReady__c,Credit__c,Net_Amount__c,Credit_Notes__c,Remaining_Work_Cost_Est__c,Followup_Type__c,Remaining_Work_Needs_Bid__c, (Select Work_Item__c, Item_Status__c, Description__c, Date__c, User__c From Work_Logs__r), (select id,name,Description__c,Work_Item__c,Labor__c,Price__c,Qty__c,Total__c,SKU__c from Products_Materials__r),(select id,name,CreatedDate,CreatedBy.Name,Group__c,File_URL__c,Photo_Rotation__c,Document_Type__c,Work_Item__c from Property_Documents__r where Document_Type__c = 'Rehab Photo - Before' or Document_Type__c = 'Rehab Photo - After') from Work_Item__c where Status__c != null AND Group__c in (" + GroupIds + ")")
           .then(function(WorkItems) {
             console.log("workItem created By name", WorkItems);
             if (WorkItems.records.length > 0) {
@@ -323,13 +323,13 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
         return defer.promise;
       };
 
-      var pushUpdates = function() {
+      
+var pushUpdates = function() {
         var defer = $q.defer();
         var flag = true;
-        localforage.getItem('updateQueue').then(function(data) {
-            if (data) {
+        console.log($rootScope.updateQueue.length);
+        data = $rootScope.updateQueue;
               if (data.length > 0) {
-
                 angular.forEach(data, function(update, idx, arr) {
                   if (update.isNew) {
                     force.create(update.type, update.fields).then(function(data) {
@@ -354,6 +354,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                                       defer.resolve();
                                       console.log("resolved");
                                     }, 5000);
+                                    if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                                   }
                                 },
                                 function(error) {
@@ -365,6 +373,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                                       defer.resolve();
                                       console.log("resolved");
                                     }, 5000);
+                                    if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                                   }
                                 });
                           }, function(error) {
@@ -376,6 +392,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                                 defer.resolve();
                                 console.log("resolved");
                               }, 5000);
+                              if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                             }
                           });
                         }
@@ -384,6 +408,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                             defer.resolve();
                             console.log("resolved");
                           }, 5000);
+                          if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                         }
                       },
                       function(error) {
@@ -395,6 +427,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                             defer.resolve();
                             console.log("resolved");
                           }, 5000);
+                          if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                         }
                       });
                   } else if (update.isToDeprecate) {
@@ -408,6 +448,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                                 defer.resolve();
                                 console.log("resolved");
                               }, 5000);
+                              if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                             }
                           },
                           function(error) {
@@ -419,6 +467,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                                 defer.resolve();
                                 console.log("resolved");
                               }, 5000);
+                              if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                             }
                           });
                       });
@@ -430,6 +486,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                             defer.resolve();
                             console.log("resolved");
                           }, 5000);
+                          if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                         }
                       },
                       function(error) {
@@ -441,6 +505,14 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                             defer.resolve();
                             console.log("resolved");
                           }, 5000);
+                        if (flag)
+          $rootScope.updateQueue = [];
+        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
+            console.log("Update Saved");
+          },
+          function(error) {
+            console.log(error);
+          });
                         }
                       });
 
@@ -453,25 +525,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                 }, 5000);
 
               }
-            }
-          },
-          function(error) {
-            console.log(error);
-            $timeout(function() {
-              defer.resolve();
-              console.log("FATAL ERROR!");
-            }, 5000);
-          });
 
-
-        if (flag)
-          $rootScope.updateQueue = [];
-        localforage.setItem('updateQueue', $rootScope.updateQueue).then(function() {
-            console.log("Update Saved");
-          },
-          function(error) {
-            console.log(error);
-          });
 
 
         return defer.promise;
@@ -648,8 +702,8 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
                   };
                   job = angular.copy(jobObj);
                   jobDetails.Street_Address__c = job.Street_Address__c;
-                  if (job.Contact_LU__r)
-                    job.vendor = job.Contact_LU__r.Name;
+                  if (job.HomeReady_Vendor__c !=  null)
+                    job.vendor = job.HomeReady_Vendor__c;
                   else
                     job.vendor = "No Vendor";
                   job.Groups = [];
@@ -848,22 +902,7 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
           $rootScope.inSync = false;
           $rootScope.outSync = false;
           pushUpdates().then(function() {
-            if ($rootScope.stateParams) {
-              $rootScope.loginWithStateParams($rootScope.stateParams.job_Id).then(function() {
-                liveUpdate();
-                Idle.watch();
-                $rootScope.lastSyncDate = new Date();
-                $rootScope.inSync = true;
-                $rootScope.syncing = false;
-              },
-              function(error) {
-                Idle.watch();
-                $rootScope.syncing = false;
-                $rootScope.outSync = true;
-                //console.log(error);
-              });
-            }
-            else pullUpdates().then(function() {
+            pullUpdates().then(function() {
                 $rootScope.assembleJobsAndCalculate().then(function() {
                     liveUpdate();
                     Idle.watch();
@@ -962,46 +1001,10 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
       templateUrl: 'app/views/detail/detail.html',
       controller: 'DetailCtrl'
     })
-    .state('camera', {
-      url: '/camera/:workItemId',
-      cache: false,
-      templateUrl: 'app/views/camera/camera.html',
-      controller: 'CameraCtrl'
-    })
 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');
   //$locationProvider.html5Mode(true);
-})
-.directive('scrollSmooth',function() {
-  return{
-    restrict:'A',
-    link:function(scope,element,attrs){
-      var base = 0;
-      element.bind("DOMMouseScroll mousewheel onmousewheel", function(event) {
-                     var event = window.event || event;
-                      var windowHeight = window.innerHeight;
-                      var listHeight = element.height()+100;
-                      //lodash.sumBy(element.children(), function(c) { return c.offsetWidth })
-                      var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-                      //scope.$apply(function(){
-                        if (-base + windowHeight <= listHeight) {
-                          base+=20*delta;
-                        } else {
-                          if (delta>0)
-                          base+=20*delta;
-                        }
-                        base = base>0?0:base;
-                        element.children().css({'transform':'translateY('+base+'px)'});
-                      //});
-
-                            event.returnValue = false;
-                             if(event.preventDefault){
-                            event.preventDefault();
-                             }
-            });
-    }
-  }
 })
 .directive('zoom', function() {
     return {
@@ -1037,3 +1040,4 @@ var homeReady = angular.module('homeready', ['ionic', 'ionic.native', 'ui.bootst
       }
     }
   })
+

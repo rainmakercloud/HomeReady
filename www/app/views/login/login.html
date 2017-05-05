@@ -1,4 +1,4 @@
-<ion-view view-title="Login" hide-nav-bar="true">
+<ion-view view-title="HomeReady Login" hide-nav-bar="true">
     <ion-content class="login-bg">
         <div class="login-content">
             <!-- Login -->
@@ -22,6 +22,7 @@
                             <input type="password" ng-model="password" class="form-control" placeholder="Password">
                         </div>
                     </div>
+
                     <label class="item item-input" style="border:none;">
             Environment &nbsp;&nbsp;
             <select ng-change="toggle()" ng-model='form.type' required ng-options='option.value as option.name for option in typeOptions'></select>
