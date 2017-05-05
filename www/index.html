@@ -48,7 +48,6 @@
     <script src="lib/angular-idle.min.js"></script>
     <script src="lib/localforage/dist/localforage.js"></script>
     <script src="lib/localforage-cordovasqlitedriver/dist/localforage-cordovasqlitedriver.js"></script>
-    <script src="lib/ion-smooth-scroll.min.js"></script>
 
     <!-- Swiper JS -->
     <script src="dist/js/swiper.js"></script>
@@ -59,6 +58,7 @@
     <script src="app/views/landing/landing.js"></script>
     <script src="app/views/summary/summary.js"></script>
     <script src="app/views/detail/detail.js"></script>
+    <script src="app/views/camera/camera.js"></script>
     <script src="homereadyConfig.js"></script>
     <script src="app/views/login/launchHomeready.js"></script>
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above-->
@@ -133,7 +133,7 @@
                           {{user.Username}}
                           <span ng-show="uat">({{uat}})</span>
                         </div>
-                        <div ng-show="iPad" class="sm-body">
+                        <div class="sm-body">
                           <a class="list-group-item media" href="">
                             <div class="media-body">
                               <div ng-click="logout()" class="lgi-heading">Log Out</div>
@@ -159,7 +159,6 @@
             </ul>
           </header>
         </ion-nav-bar>
-
         <ion-nav-view></ion-nav-view>
         <aside ng-show="menuOverlay" id="sidebar" class="sidebar">
                     <ul class="main-menu">

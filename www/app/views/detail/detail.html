@@ -83,13 +83,14 @@
   .panel {
     margin-top: 0 !important;
   }
-  .has-header.has-header-false { top: inherit; }
+
 </style>
 
-  <ion-content view-title="HomeReady Detail" overflow-scroll="true" delegate-handle="detailPageDelegate" style="background:#edecec">
+<ion-view>
+  <ion-content overflow-scroll=“true” style="background:#edecec">
     <div class="has-header">
       <div class="item-body">
-        <section id="content">
+        <section id="content" scroll-smooth>
           <div class="container">
             <div class="block-header">
               <div class="row">
@@ -135,14 +136,13 @@
                 </label>
               </li>
             </ul>
+
             <div class="accordion">
 
               <uib-accordion close-others="true">
                 <div uib-accordion-group class="panel-collapse" is-open="outerIndex" ng-repeat="group in activeGroups | orderBy: 'group.Sequence__c':reverseGroup track by $id(group) " ng-init="outerIndex = isOpenGroup(group.Group_Name__c)">
-
-                  <uib-accordion-heading  id="groupHeader{{$index}}">
-                    <div class="panel-heading"  style="padding:10px;" ng-click="getActiveWorkItems(group.Group_Name__c,'isNotOpen',$index)">
-
+                  <uib-accordion-heading id="accordianHeader{{$index}}">
+                    <div class="panel-heading" id="groupHeader{{$index}}" style="padding:10px;" ng-click="getActiveWorkItems(group.Group_Name__c,'isNotOpen',$index)">
                       <h4>{{group.Group_Name__c}}
                         <span class="detail-type">[{{group.Type__c}}]</span>
                       </h4>
@@ -151,8 +151,8 @@
                   <div id="loader"></div>
                   <uib-accordion close-others="true">
                     <div uib-accordion-group is-open="innerIndex" class="panel-collapse" is-disabled="!workItem.Verify_in_HomeReady__c" ng-repeat="workItem in group.WorkItems track by workItem.Id" ng-init="innerIndex = isOpenWorkItem(workItem.Id)">
-                      <uib-accordion-heading id="workItemHeader{{$index}}" style="line-height: 30px;">
-                        <div class="panel-collapse" ng-click="getCurrentWorkItemData(workItem.Id,'isNotOpen',$index)">
+                      <uib-accordion-heading style="line-height: 30px;">
+                        <div class="panel-collapse" ng-click="getCurrentWorkItemData(workItem.Id,'isNotOpen')">
                           <h4 class="work-item-heading" style="padding-bottom: 10px;">
                             <div class="add-credit-button col-sm-3 text-right">
                               <button id="btn-addCredit" ng-show="isVerifier && (workItem.Credit__c === null) && (workItem.Verify_in_HomeReady__c == true)" class="btn bgm-black btn-xs waves-effect" ng-click="showCreditModal(group,workItem.Id,$event)">Add Credit</button>
@@ -187,11 +187,11 @@
                               <div class="row">
                                 <div class="col-sm-3">
                                   <strong>Amount</strong>
-                                  {{workItem.HomeReady_Amount__c | currency}}
+                                  {{workItem.Amount__c | currency}}
                                 </div>
                                 <div class="col-sm-6">
                                   <strong>Qty:</strong>
-                                  {{workItem.HomeReady_Quantity__c}}
+                                  {{workItem.Quantity__c}}
                                 </div>
                                 <div class="col-sm-3"></div>
                               </div>
@@ -200,7 +200,7 @@
                         </div>
                       </uib-accordion-heading>
                       <div class="table-responsive parts-labor-table-wrapper">
-                        <table class="table table-condensed parts-labor-table table-bordered" style="overflow-y:scroll!important;">
+                        <table class="table table-condensed parts-labor-table table-bordered" style="overflow-y:scroll!important;height: 90px;">
                           <tbody>
                             <tr ng-repeat="product in currentWorkItem.Products_Materials__r.records">
                               <td>
@@ -230,40 +230,8 @@
                           </tbody>
                         </table>
                       </div>
-                      <ion-scroll ng-show="currentWorkItem.Work_Logs__r.records.length == 1" style="height:40px;">
-                        <div class="table-responsive remove-margin" style="overflow-y:scroll!important">
-                          <table class="table-vmiddle bootgrid-table table table-striped table-condensed">
-                            <tbody>
-                              <tr ng-repeat="historyDetail in currentWorkItem.Work_Logs__r.records | orderBy:'Date__c'">
-                                <td>{{historyDetail.Date__c | date : 'MM/dd/yyyy @  hh:mm a'}}</td>
-                                <td>
-                                  <span class="{{historyDetail.Item_Status__c}} capitalize bold">{{historyDetail.Item_Status__c}}</span>
-                                  {{historyDetail.Description__c}}
-                                </td>
-                                <td>{{historyDetail.User__c}}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </ion-scroll>
-                    <ion-scroll ng-show="currentWorkItem.Work_Logs__r.records.length == 2" style="height:70px;">
-                      <div class="table-responsive remove-margin" style="overflow-y:scroll!important">
-                        <table class="table-vmiddle bootgrid-table table table-striped table-condensed">
-                          <tbody>
-                            <tr ng-repeat="historyDetail in currentWorkItem.Work_Logs__r.records | orderBy:'Date__c'">
-                              <td>{{historyDetail.Date__c | date : 'MM/dd/yyyy @  hh:mm a'}}</td>
-                              <td>
-                                <span class="{{historyDetail.Item_Status__c}} capitalize bold">{{historyDetail.Item_Status__c}}</span>
-                                {{historyDetail.Description__c}}
-                              </td>
-                              <td>{{historyDetail.User__c}}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </ion-scroll>
-                    <ion-scroll ng-show="currentWorkItem.Work_Logs__r.records.length > 2" style="height:90px">
-                      <div class="table-responsive remove-margin" style="overflow-y:scroll!important">
+                    <ion-scroll style="height: 90px;">
+                      <div class="table-responsive remove-margin">
                         <table class="table-vmiddle bootgrid-table table table-striped table-condensed">
                           <tbody>
                             <tr ng-repeat="historyDetail in currentWorkItem.Work_Logs__r.records | orderBy:'Date__c'">
@@ -296,49 +264,44 @@
 
                       <div class="row">
                         <div class="col-sm-6">
-                            <ion-slide-box class="sliderBox ionSlideBox" show-pager="false" delegate-handle="beforePhotoHandle" does-continue="true" set-height>
+                          <div>
+                            <ion-slide-box class="sliderBox" show-pager="false" delegate-handle="workItem_slider" does-continue="true">
                               <ion-slide ng-if="(slidePhotos | filter: {Document_Type__c: 'Rehab Photo - Before'}).length == 0">
                                 <div class="box item-body">
-                                  <img class="full-image" ng-src="/img/after-image-placeholder.jpg">
+                                  <img class="full-image sliderPhoto" ng-src="/img/after-image-placeholder.jpg">
                                 </div>
                               </ion-slide>
                               <ion-slide ng-if="(slidePhotos | filter: {Document_Type__c: 'Rehab Photo - Before'}).length > 0" ng-repeat="photo in slidePhotos | filter: {Document_Type__c: 'Rehab Photo - Before'}" ng-init="photoBeforeIndex = $index">
                                 <div class="box item-body">
                                   <label style="position:absolute;left:0;top:0;font-weight:bold;color:#ff9800">[{{$index+1}}/{{(slidePhotos | filter: {Document_Type__c: 'Rehab Photo - Before'}).length}}]</label>
-                                  <label style="position:absolute;right:0;top:0;width:250px;font-weight:bold;color:#ff9800">{{photo.CreatedDate| date : 'MM/dd/yyyy'}}
+                                  <label style="position:absolute;right:0;top:0;width:200px;font-weight:bold;color:#ff9800">{{photo.CreatedDate| date : 'MM/dd/yyyy'}}
                                     by
                                     {{photo.CreatedBy.Name}}</label>
-                                  <div style="overflow:hidden">
-                                    <img class="full-image" ng-if="photo.File_URL__c != null" ng-src="{{photo.File_URL__c}}" ng-click="openModal(slidePhotos,photoBeforeIndex,photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
-                                  </div>
+                                  <img class="full-image sliderPhoto" ng-if="photo.File_URL__c != null" ng-src="{{photo.File_URL__c}}" ng-click="openModal(slidePhotos,photoBeforeIndex,photo.Document_Type__c)">
                                   <button ng-if="workItemSlider" ng-click="movePhotoToGroup(currentWorkItem.Group__c,photo)" style="position:absolute;left:15%;bottom:5%">Move photo to [Group]</button>
                                   <button ng-if="groupSlider" ng-click="movePhotoToWorkItem(currentWorkItem.Id,photo)" style="position:absolute;left:15%;bottom:5%">Move photo to [Work Item]</button>
-                                  <div ng-click="prevSlide($index)" ng-if="!($first)" style="position:absolute;top:0%;height:100%;width:100px;display:table">
-                                    <div style="display:table-cell;vertical-align:middle">
-                                      <button class="icon button-clear" ng-hide="$first" style="position:absolute;left:0%;weight:bold;font-size:40px;padding-bottom:45px">
-                                        <a class="ion-chevron-left"></a>
-                                      </button>
-                                    </div>
-
+                                  <div ng-click="prevSlide()" ng-disabled="$first" style="position:absolute;top:0%;height:400px;width:100px">
+                                    <button class="icon button-clear buttonTop" ng-hide="$first" style="position:absolute;left:0%;weight:bold;font-size:40px;padding-bottom:45px">
+                                      <a class="ion-chevron-left"></a>
+                                    </button>
                                   </div>
-                                  <div ng-click="nextSlide($index)" ng-if="!($last)" style="position:absolute;top:0%;right:0%;height:100%;width:100px;display:table">
-                                    <div style="display:table-cell;vertical-align:middle">
-                                      <button class="icon button-clear" ng-hide="$last" style="position:absolute;right:4%;weight:bold;font-size:40px;padding-bottom:45px">
-                                        <a class="ion-chevron-right"></a>
-                                      </button>
-                                    </div>
-
+                                  <div ng-click="nextSlide()" ng-disabled="$last" style="position:absolute;top:0%;right:0%;height:400px;width:100px">
+                                    <button class="icon button-clear buttonTop" ng-hide="$last" style="position:absolute;right:4%;weight:bold;font-size:40px;padding-bottom:45px">
+                                      <a class="ion-chevron-right"></a>
+                                    </button>
                                   </div>
                                 </div>
                               </ion-slide>
                             </ion-slide-box>
+                          </div>
                         </div>
 
                         <div class="col-sm-6" ng-show="!(imgURI)">
-                            <ion-slide-box  class="sliderBox ionSlideBox" show-pager="false" delegate-handle="afterPhotoHandle" does-continue="true" set-height>
+                          <div>
+                            <ion-slide-box class="sliderBox" show-pager="false" delegate-handle="AfterPhoto" does-continue="true">
                               <ion-slide ng-if="(currentWorkItem.Property_Documents__r.records | filter: {Document_Type__c: 'Rehab Photo - After'}).length == 0">
                                 <div class="box item-body">
-                                  <img class="full-image" ng-src="/img/after-image-placeholder.jpg">
+                                  <img class="full-image sliderPhoto" ng-src="/img/after-image-placeholder.jpg">
                                 </div>
                               </ion-slide>
                               <ion-slide
@@ -346,34 +309,28 @@
                                 ng-repeat="After_Photo in currentWorkItem.Property_Documents__r.records | filter: {Document_Type__c: 'Rehab Photo - After'}">
                                 <div class="box item-body">
                                   <label style="position:absolute;left:0;top:0;font-weight:bold;color:#ff9800">[{{$index+1}}/{{(currentWorkItem.Property_Documents__r.records | filter: {Document_Type__c: 'Rehab Photo - After'}).length}}]</label>
-                                  <label style="position:absolute;width:250px;right:0;top:0;font-weight:bold;color:#ff9800">{{After_Photo.CreatedDate| date : 'MM/dd/yyyy'}}
+                                  <label style="position:absolute;width:200px;right:0;top:0;font-weight:bold;color:#ff9800">{{After_Photo.CreatedDate| date : 'MM/dd/yyyy'}}
                                     by
                                     {{After_Photo.CreatedBy.Name}}</label>
-                                  <div style="overflow:hidden">
-                                    <img class="full-image" ng-src="{{After_Photo.File_URL__c}}" err-src="/img/after-image-placeholder" ng-click="openModal(currentWorkItem.Property_Documents__r.records,$index,After_Photo.Document_Type__c)" style="transform: rotate({{photo.Photo_Rotation__c}}deg)">
+                                  <img class="full-image sliderPhoto" ng-src="{{After_Photo.File_URL__c}}" err-src="/img/after-image-placeholder" ng-click="openModal(currentWorkItem.Property_Documents__r.records,$index,After_Photo.Document_Type__c)">
+                                  <div ng-if="!($first)" ng-click="prevAfterPhotoSlide()" style="position:absolute;top:0%;height:400px;width:100px">
+                                    <button class="icon button-clear buttonTop"  ng-hide="$first" style="position:absolute;left:0%;weight:bold;font-size:40px;padding-bottom:45px">
+                                      <a class="ion-chevron-left"></a>
+                                    </button>
                                   </div>
-                                  <div ng-show="!($first)" ng-click="prevAfterPhotoSlide($index)" style="position:absolute;top:0%;height:100%;width:100px;display:table">
-                                    <div style="display:table-cell;vertical-align:middle">
-                                      <button class="icon button-clear"  ng-hide="$first" style="position:absolute;left:0%;weight:bold;font-size:40px;padding-bottom:45px">
-                                        <a class="ion-chevron-left"></a>
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <div ng-show="!($last)" ng-click="nextAfterPhotoSlide($index)" style="position:absolute;top:0%;right:0%;height:100%;width:100px;display:table">
-                                    <div style="display:table-cell;vertical-align:middle">
-                                      <button class="icon button-clear"  ng-hide="$last" style="position:absolute;right:2%;weight:bold;font-size:40px;padding-bottom:45px">
-                                        <a class="ion-chevron-right"></a>
-                                      </button>
-                                    </div>
-
+                                  <div ng-if="!($last)" ng-click="nextAfterPhotoSlide()" style="position:absolute;top:0%;right:0%;height:400px;width:100px">
+                                    <button class="icon button-clear buttonTop"  ng-hide="$last" style="position:absolute;right:2%;weight:bold;font-size:40px;padding-bottom:45px">
+                                      <a class="ion-chevron-right"></a>
+                                    </button>
                                   </div>
                                 </div>
                               </ion-slide>
                             </ion-slide-box>
+                          </div>
                         </div>
                         <div class="col-sm-6" ng-show="(workItem.Status__c == 'Underway')&&(imgURI)">
-                          <div class="thumbnail">
-                            <img class="sliderPhotos" ng-model="imgURI" ng-show="imgURI" ng-src="{{imgURI}}" alt="" set-height>
+                          <div class="thumbnail defaultImage">
+                            <img class="full-image photo-responsive" ng-model="imgURI" ng-show="imgURI" ng-src="{{imgURI}}" alt="">
                           </div>
                         </div>
                       </div>
@@ -381,10 +338,10 @@
                         <div class="col-sm-6"></div>
 
                         <div class="col-sm-6 fix-padding-left">
-                          <div ng-show="!iPad">
+                          <div ng-show="!iPad && (workItem.Status__c == 'Underway')">
                             <input type="file" name="file" id="fileInput" accept=".png, .jpg, .jpeg" class="custom-file-input" onchange="angular.element(this).scope().selectImage(this.files)"/>
                           </div>
-                          <button ng-show="iPad" class="btn bgm-gray btn-icon-text btn-xs waves-effect" ng-click="takePhoto()">
+                          <button ng-show="iPad && (workItem.Status__c == 'Underway')" class="btn bgm-gray btn-icon-text btn-xs waves-effect" ng-click="testCamera(workItem.Id)">
                             <i class="zmdi zmdi-camera"></i>
                             Take Photo
                           </button>
@@ -439,3 +396,4 @@
         </div>
       </div>
     </ion-content>
+  </ion-view>
